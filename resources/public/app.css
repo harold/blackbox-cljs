@@ -1,0 +1,12 @@
+* {font-family:sans-serif; box-sizing:border-box;}
+body {background: #222;}
+.page {color: #f8f8f8;}
+.red {color: #f44;}
+.clickable {cursor: pointer;}
+.board-container {margin-top: 20px;}
+.board {position: relative;
+	margin: 0 auto;
+	padding: 20px;
+	user-select: none;}
+.desc {text-align: center;
+       margin-top: 20px;}

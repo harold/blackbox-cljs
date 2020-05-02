@@ -1,0 +1,11 @@
+#!/bin/bash
+set -e
+rm -rf build
+lein build-prod
+mkdir build
+cp target/public/cljs-out/prod-main.js build
+cp resources/public/favicon.ico build
+cp resources/public/normalize.css build
+cp resources/public/app.css build
+cp resources/public/index.html build
+sed -i 's/cljs-out\/dev-main.js/prod-main.js/g' build/index.html
