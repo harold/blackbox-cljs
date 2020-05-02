@@ -1,3 +1,0 @@
-{:main blackbox-cljs.core
- :optimizations :advanced
- :infer-externs true}
