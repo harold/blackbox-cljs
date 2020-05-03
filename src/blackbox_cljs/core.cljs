@@ -13,7 +13,7 @@
                          :balls (->> #(vector (inc (rand-int 8))
                                               (inc (rand-int 8)))
                                      (repeatedly)
-                                     (distinct )
+                                     (distinct)
                                      (take 4)
                                      (set))}))
 
@@ -48,7 +48,11 @@
       (if ((:guesses @state*) [x y])
         (swap! state* update :guesses disj [x y])
         (swap! state* update :guesses conj [x y]))
-      (when-not (#{[0 0] [0 9] [9 0] [9 9]} [x y])
+      (when-not (or (#{[0 0] [0 9] [9 0] [9 9]} [x y])
+                    ((:hits @state*) [x y])
+                    ((:reflections @state*) [x y])
+                    ((:entries @state*) [x y])
+                    ((:exits @state*) [x y]))
         (let [[t x2 y2] (romp 0 x y
                               (condp = x 0 1 9 -1 0)
                               (condp = y 0 1 9 -1 0))]
@@ -85,32 +89,30 @@
              (for [y (range 10)
                    x (range 10)]
                [:svg {:width size :height size
-                      :style {:position :absolute
-                              :left (* size x) :top (* size y)}
+                      :style {:position :absolute :left (* size x) :top (* size y)}
                       :on-mouse-enter #(on-hover x y)
                       :on-click #(on-click x y)}
                 (when (= [x y] (:hover @state*))
-                  [:rect {:x 0 :y 0
-                          :width size :height size
-                          :fill :#888}])
+                  [:rect {:width size :height size :fill :#888}])
                 (when (and (:done @state*)
                            ((:balls @state*) [x y]))
                   [:circle {:cx (/ size 2) :cy (/ size 2)
-                            :r (/ size 3) :fill :#292
-                            :stroke-width 0}])
+                            :r (/ size 3) :fill :#292 :stroke :none}])
                 (if (in-board? x y)
                   (if ((:guesses @state*) [x y])
                     [:circle {:cx (/ size 2) :cy (/ size 2)
                               :r (/ size 3) :fill :none
                               :stroke-width 1 :stroke :#f8f8f8}]
                     [:line {:x1 6 :y1 (/ size 2)
-                            :x2 14 :y2 (/ size 2)
+                            :x2 (- size 6) :y2 (/ size 2)
                             :stroke-width 1 :stroke :#f8f8f8}])
-                  [:g {:stroke-width 0 :fill :#f8f8f8}
-                   (cond ((:hits @state*) [x y]) [:text {:x 4 :y 16} "H"]
-                         ((:reflections @state*) [x y]) [:text {:x 4 :y 16} "R"]
-                         ((:entries @state*) [x y]) [:text {:x 6 :y 16} ((:entries @state*) [x y])]
-                         ((:exits @state*) [x y]) [:text {:x 6 :y 16} ((:exits @state*) [x y])])])])))
+                  [:g {:stroke-width 0 :fill :#f8f8f8
+                       :text-anchor :middle :dominant-baseline :central
+                       :transform (str "translate("(/ size 2)","(/ size 2)")")}
+                   (cond ((:hits @state*) [x y]) [:text "H"]
+                         ((:reflections @state*) [x y]) [:text "R"]
+                         ((:entries @state*) [x y]) [:text ((:entries @state*) [x y])]
+                         ((:exits @state*) [x y]) [:text ((:exits @state*) [x y])])])])))
      [:div.desc "There are 4 balls in the box."]
      (when (and (= 4 (count (:guesses @state*)))
                 (not (:done @state*)))
